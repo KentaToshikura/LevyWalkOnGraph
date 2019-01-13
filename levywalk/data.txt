@@ -1,9 +1,0 @@
-trial 1
-node 1000
-threshold 0.05
-researchCoverRatio true
-entityClass LevyWalkEntity
-step 1000
-entity 1
-remake 1000
-file result
