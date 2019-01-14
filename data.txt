@@ -2,10 +2,11 @@ trial 1
 node 1000
 threshold 0.05
 researchCoverRatio true
+entityClass LevyWalk
 step 1000
 entity 1
 remake 1000
 file result
 permissibleError 20.0
-lambda 2.0
-interval 100
+lambda 1.2
+interval 1000
