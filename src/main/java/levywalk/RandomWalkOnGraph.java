@@ -17,22 +17,17 @@ public class RandomWalkOnGraph extends RandomWalk{
   final Integer trial; // 試行回数
   final Integer nodeNum; // ノード数
   final Double threshold; // しきい値
-  //final String entityClass; // null -> (TabuEntity)
+  final String entityClass; // エンティティの種類
   final Integer stepNum; // ステップ数
   final Integer entityNum; // エンティティ数
   final Integer remakeNum; // グラフの作り直し回数
   final File file; // ファイル名
   final Boolean researchCoverRatio; // カバー率を調べるかどうか
-  final Double permissibleError;
-  final Double lambda;
-  final Long randomSeed;
-  final Integer interval;
+  final Double permissibleError; // 許容誤差
+  final Double lambda; // パラメータ
+  final Long randomSeed; // シード
+  final Integer interval; // カバー率を取得するステップの間隔
   final Boolean debug;
-
-  final String entityClass = LevyWalkEntity.class.getName(); // LevyWalk
-  //final String entityClass = null; // RandomWalk (TabuEntity)
-
-
 
   /* 初期設定 */
   public RandomWalkOnGraph(Data d){
@@ -40,7 +35,6 @@ public class RandomWalkOnGraph extends RandomWalk{
     this.trial = d.trial;
     this.nodeNum = d.node;
     this.threshold = d.threshold;
-    //this.entityClass = d.entityClass;
     this.stepNum = d.step;
     this.entityNum = d.entity;
     this.remakeNum = d.remake;
@@ -53,11 +47,24 @@ public class RandomWalkOnGraph extends RandomWalk{
     this.debug = d.debug;
 
     System.out.println("");
+    if(d.entityClass.equals("LevyWalk")) {
+      this.entityClass = LevyWalkEntity.class.getName(); // LevyWalk
+      System.out.println("LevyWalk");
+    } else if(d.entityClass.equals("RandomWalk")) {
+      this.entityClass = TabuEntity.class.getName(); // RandomWalk
+      System.out.println("RandomWalk");
+    } else {
+      this.entityClass = null;
+      System.err.println("Nothing " + d.entityClass);
+      System.exit(-1);
+    }
+
     if(this.researchCoverRatio){
       System.out.println("CoverRatio");
     } else {
       System.out.println("ReachRatio");
     }
+      System.out.println("Seed: " + this.randomSeed);
   }
 
   public void run (){
@@ -72,7 +79,6 @@ public class RandomWalkOnGraph extends RandomWalk{
     }
     /* ランダムウォークをする */
     this.randomWalk(graph);
-    //this.printGraphInfo(graph);
 
     return;
   }
@@ -328,11 +334,6 @@ public class RandomWalkOnGraph extends RandomWalk{
   private void printConfiguration()
   {
     System.out.println("");
-    if(this.entityClass != null){
-      System.out.println(this.entityClass);
-    }else{
-      System.out.println("TabuEntity (RandomWalk)");
-    }
     System.out.println("Node: " + nodeNum + ", Threshold: " + threshold);
     System.out.println("Step: " + stepNum + ", Entity: " + entityNum);
 

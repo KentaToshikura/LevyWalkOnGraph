@@ -24,7 +24,7 @@ public class Data{
   Boolean researchCoverRatio = true;
 
   //エンティティの種類
-  String entityClass = null;
+  String entityClass = "LevyWalk";
 
   // 最大ステップ数
   Integer step = 1000;
@@ -42,7 +42,7 @@ public class Data{
   Long randomSeed = new Random().nextLong();
 
   // 刻み幅
-  Integer interval;
+  Integer interval = 1000;
 
   Boolean debug = false;
 }

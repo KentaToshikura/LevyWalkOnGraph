@@ -17,7 +17,6 @@ public class Main{
     options.setArguments(d); // 引数をセット
    
     for(Integer i = 0; i < d.trial; i++){
-      d.randomSeed = new Random().nextLong();
       RandomWalkOnGraph rwGraph = new RandomWalkOnGraph(d);
       rwGraph.run();
       rwGraph.WriteToFile(); // 改行を追加

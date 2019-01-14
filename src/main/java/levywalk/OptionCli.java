@@ -52,7 +52,7 @@ public class OptionCli{
       d.researchCoverRatio = Boolean.valueOf(str);
 
     if((str = cmdln.getOptionValue("entityClass")) != null)
-      d.entityClass = (str.endsWith(".java"))? str : str.concat(".java");
+      d.entityClass = str;
       //d.entityClass = str.class.getName();
 
     if((str = cmdln.getOptionValue("step")) != null)
