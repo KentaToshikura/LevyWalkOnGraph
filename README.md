@@ -7,6 +7,8 @@ java -jar levywalk.jar data.txt
 trial 1
 node 1000
 threshold 0.05
+graphSeed 1473622387912636683
+walkSeed -236423563197642130
 researchCoverRatio true
 entityClass LevyWalk
 step 1000
@@ -21,6 +23,8 @@ interval 1000
 trial : 試行回数 : Integer
 node : ノード数 : Integer
 threshold : しきい値 : Double
+graphSeed : グラフ生成用ランダムシード : Long
+walkSeed : 探索用ランダムシード : Long
 researchCoverRatio : カバー率の調査(true),到達率の調査(false) : Boolean
 entityClass : LevyWalk もしくは RandomWalk : String
 step : ステップ数 : Integer

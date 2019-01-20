@@ -21,10 +21,11 @@ public class LevyWalkEntity extends TabuEntity
   Boolean researchCoverRatio; 
   Double permissibleError; // 許容誤差
   Double lambda; // スケーリングパラメータ,ラムダ
-  Boolean debug;
+  Boolean debug = false;
 
   @Override
-    public void init(RandomWalk.Context context, Node start) {
+    public void init(RandomWalk.Context context, Node start)
+    {
       super.init(context, start);
       //System.out.println("RandomSeed: " + this.seed); // シードの確認
       start.addAttribute("start", "start");
@@ -45,59 +46,59 @@ public class LevyWalkEntity extends TabuEntity
       System.out.println("levyWalkStep");
       System.out.println("currentNode " + this.current.getId());
     }
-    Integer stepLength = this.getStepLength();
+    Integer hopLength = this.getHopLength();
     Integer aValue = this.counter.intValue();            // 整数部はそのままで
     this.counter = Double.valueOf(aValue.doubleValue()); // 少数部を0にする
-    if(debug) System.out.println("stepLength " + stepLength + ", counter " + this.counter);
+    if(debug) System.out.println("hopLength " + hopLength + ", counter " + this.counter);
     this.counter += 1.0;
 
     Double orientation = this.getOrientation(); // 方向を決定
     if(debug) System.out.println("~~~~~~~~~ set Orientation");
 
-    for(Integer i = 1; i <= stepLength; i++) // stepLength分のLevyWalkを繰り返す
+    for(Integer i = 1; i <= hopLength; i++) // hopLength分のLevyWalkを繰り返す
     {
       if(debug){
         System.out.println("~~ I N ~~");
         System.out.println("counter " + this.counter + ", currentNode " + this.current.getId());
       }
-      ArrayList<Edge> neigbors = this.getNeigbor(this.current); // 隣接エッジを取得
-      ArrayList<Edge> possibleNeigbors = new ArrayList<Edge>(0); // 移動可能エッジ
+      ArrayList<Edge> neighbors = this.getNeighbor(this.current); // 隣接エッジを取得
+      ArrayList<Edge> possibleNeighbors = new ArrayList<Edge>(0); // 移動可能エッジ
       if(debug){
-        System.out.println("~~~~~~~~~ remaining StepLength " + i + ", orientation " + orientation);
-        System.out.println("~~~~~~~~~ neigbors have " + neigbors.size() + " elements");
-        System.out.printf("~~~~~~~~~ neigbor");
-        for(Edge edge: neigbors) System.out.printf(" " + edge + ",");
+        System.out.println("~~~~~~~~~ remaining HopLength " + i + ", orientation " + orientation);
+        System.out.println("~~~~~~~~~ neighbors have " + neighbors.size() + " elements");
+        System.out.printf("~~~~~~~~~ neighbor");
+        for(Edge edge: neighbors) System.out.printf(" " + edge + ",");
         System.out.println();
       }
 
       // 移動可能なエッジを調べる
       if(debug) System.out.println("~~~~~~~~~ ~~ I N ~~");
-      while(possibleNeigbors.size() < 1) // 移動可能なエッジを見つけるまで繰り返す
+      while(possibleNeighbors.size() < 1) // 移動可能なエッジを見つけるまで繰り返す
       {
-        for(Edge neigbor: neigbors)
+        for(Edge neighbor: neighbors)
         {
-          Double error = Double.valueOf(this.getError(orientation, neigbor)); // 方向と隣接エッジとの誤差を取得
-          neigbor.addAttribute("error", error);                               // 誤差をそのエッジの属性として追加
+          Double error = this.getError(orientation, neighbor); // 方向と隣接エッジとの誤差を取得
+          neighbor.addAttribute("error", error);                               // 誤差をそのエッジの属性として追加
           if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ error: " + error + ", permissibleError: " + this.permissibleError);
           if(error < this.permissibleError){
-            if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ possibleNeigbors.add");
-            possibleNeigbors.add(neigbor);    // 許容誤差内であれば、移動可能とする
+            if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ possibleNeighbors.add");
+            possibleNeighbors.add(neighbor);    // 許容誤差内であれば、移動可能とする
           }
         }
 
-        if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ size of possibleNeigbors -> " + possibleNeigbors.size());
-        if(possibleNeigbors.size() < 1) { // 移動可能なエッジが存在しない場合
+        if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ size of possibleNeighbors -> " + possibleNeighbors.size());
+        if(possibleNeighbors.size() < 1) { // 移動可能なエッジが存在しない場合
           Integer aPart = Integer.valueOf(this.counter.intValue()); // 整数部を取得
           Double integerPart = Double.valueOf(aPart);               // Doubleに変換
 
           if((this.counter - integerPart) <= this.decimal){ // 1回目の移動
-            if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ nothing PN, and first of step.");
+            if(debug) System.out.println("~~~~~~~~~ ~~~~~~~~~ nothing PN, and first of hop.");
             // 新たに方向を取得する（そして、また移動可能なエッジを調べる）
             orientation = this.getOrientation();
             if(debug) System.out.println("~~~~~~~~~ ~~again~~ ");
           } else {                  // 2回目以降の移動
             if(debug){
-              System.out.println("~~~~~~~~~ ~~~~~~~~~ nothing PN, and more than second of step.");
+              System.out.println("~~~~~~~~~ ~~~~~~~~~ nothing PN, and more than second of hop.");
               System.out.println("~~ OUT ~~ ~~ OUT ~~");
             }
             return;
@@ -108,12 +109,12 @@ public class LevyWalkEntity extends TabuEntity
       if(debug) System.out.println("~~~~~~~~~ ~~ OUT ~~");
 
       // 移動可能なエッジの中からもっとも誤差が小さいエッジを取得
-      Edge neigbor = this.getMinimumError(possibleNeigbors);
+      Edge neighbor = this.getMinimumError(possibleNeighbors);
       this.counter += this.decimal;
       current.addAttribute("counter", this.counter);
-      if(debug) System.out.println("~~~~~~~~~ PN of minimumError " + neigbor.getId() + ", error " + neigbor.getAttribute("error") + ", counter " + counter);
-      this.cross(neigbor);
-      if(debug) System.out.println("~~~~~~~~~ " + neigbor.getId() + " crossed");
+      if(debug) System.out.println("~~~~~~~~~ PN of minimumError " + neighbor.getId() + ", error " + neighbor.getAttribute("error") + ", counter " + counter);
+      this.cross(neighbor);
+      if(debug) System.out.println("~~~~~~~~~ " + neighbor.getId() + " crossed");
       
       if(!this.researchCoverRatio){ // カバー率を調べる場合 -> false
         if(this.current.hasAttribute("target")){
@@ -122,7 +123,7 @@ public class LevyWalkEntity extends TabuEntity
         }
       }
 
-      System.out.printf("\r%3.0fsteps (lw %3.0f%%)", counter, i.doubleValue()/stepLength.doubleValue()*100.0);
+      System.out.printf("\r%3.0fsteps (lw %3.0f%%)", counter, i.doubleValue()/hopLength.doubleValue()*100.0);
     }
     if(debug) System.out.println("~~ OUT ~~");
 
@@ -137,7 +138,7 @@ public class LevyWalkEntity extends TabuEntity
   }
 
   //隣接エッジを取得
-  public ArrayList<Edge> getNeigbor(Node aNode)
+  public ArrayList<Edge> getNeighbor(Node aNode)
   {
     Iterator<? extends Edge> anEdge = aNode.getLeavingEdgeIterator();
     ArrayList<Edge> edges = new ArrayList<Edge>(0);
@@ -160,7 +161,7 @@ public class LevyWalkEntity extends TabuEntity
   public Double getAngle(Edge anEdge)
   {
     Node aNode = anEdge.getTargetNode(); // 他方のノードを取得
-    if(debug) System.out.printf("getAngle() -> curentNode: " + current.getId() + ", neigborNode: " + aNode.getId());
+    if(debug) System.out.printf("getAngle() -> curentNode: " + current.getId() + ", neighborNode: " + aNode.getId());
     if(current.getId() == aNode.getId()){ // 現在のノードと取得したノードが同じノードの場合、
       aNode = anEdge.getSourceNode();     // もう一方のノードを取得
     }
@@ -181,57 +182,25 @@ public class LevyWalkEntity extends TabuEntity
     return Math.abs(anError); // 絶対値で返す
   }
 
-  // 移動可能な隣接ノードを取得
-  public Edge getNextPN(Node current)
-  {
-    Iterator<? extends Edge> neighbors = current.getLeavingEdgeIterator();
-    Double orientation = this.getOrientation();
-    Edge possibleNeighbor = null;
-    Integer flag = 0;
-
-    while(neighbors.hasNext())
-    {
-      Edge theEdge = neighbors.next();
-      Double theAngle = this.getAngle(theEdge) - orientation; // エッジの角度を絶対値で取得
-
-      if(theAngle < permissibleError)
-      {
-        if(flag < 1)
-        {
-          possibleNeighbor = theEdge;
-          flag++;
-          continue;
-        }
-        if(this.getAngle(possibleNeighbor) < theAngle)
-        {
-          possibleNeighbor = theEdge;
-        }
-      }
-    }
-    return possibleNeighbor;
-  }
-
   // 設定したランダムシードより、乱数を生成
   public Double getRandomValue()
   {
-    //Random random = new Random(this.randomSeed); // シード設定
-    Double aValue = Double.valueOf(random.nextDouble()); // 乱数生成
-    //System.out.println("RandomValue: " + aValue); // 乱数の確認
-    return aValue; // 0 < d <= 1 (期待する値、出力される値ではない)
+    Double aValue = random.nextDouble(); // 乱数を取得
+    return aValue; // 0 <= d < 1
   }
 
   // ステップ長の取得
-  public Integer getStepLength()
+  public Integer getHopLength()
   {
-    Double aStepValue = Math.pow(this.getRandomValue(), (-1)*this.lambda); // x^(-λ) べき関数
-    if(aStepValue < 1){
-      System.err.println("aStepValue < 1, " + aStepValue);
+    Double aHopValue = Math.pow(this.getRandomValue(), (-1)*this.lambda); // x^(-λ) べき関数
+    if(aHopValue < 1){
+      System.err.println("aHopValue < 1, " + aHopValue);
       System.exit(1);
-    } else if(aStepValue > 10000.0){
-      aStepValue = 10000.0;
+    } else if(aHopValue > 10000.0){
+      aHopValue = 10000.0;
     }
-    Integer aStepLength = aStepValue.intValue();
-    return aStepLength;
+    Integer aHopLength = aHopValue.intValue();
+    return aHopLength;
   }
 
   // 最小のエラーを持つエッジを取得

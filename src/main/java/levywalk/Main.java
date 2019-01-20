@@ -16,10 +16,38 @@ public class Main{
     options.parse(arguments); // 引数を解析
     options.setArguments(d); // 引数をセット
    
-    for(Integer i = 0; i < d.trial; i++){
-      RandomWalkOnGraph rwGraph = new RandomWalkOnGraph(d);
-      rwGraph.run();
-      rwGraph.WriteToFile(); // 改行を追加
+    if(d.graphSeed.equals(0L)){
+      if(d.walkSeed.equals(0L)){ // グラフシードと探索シードが設定されていない
+        for(Integer i = 0; i < d.trial; i++){
+          d.graphSeed = new Random().nextLong();
+          d.walkSeed = new Random().nextLong();
+          RandomWalkOnGraph rwGraph = new RandomWalkOnGraph(d);
+          rwGraph.run();
+          rwGraph.WriteToFile(); // 改行を追加
+        }
+      } else { // 探索シードのみが設定されている
+        for(Integer i = 0; i < d.trial; i++){
+          d.graphSeed = new Random().nextLong();
+          RandomWalkOnGraph rwGraph = new RandomWalkOnGraph(d);
+          rwGraph.run();
+          rwGraph.WriteToFile(); // 改行を追加
+        }
+      }
+    } else {
+      if(d.walkSeed.equals(0L)){ // グラフシードのみが設定されている
+        for(Integer i = 0; i < d.trial; i++){
+          d.walkSeed = new Random().nextLong();
+          RandomWalkOnGraph rwGraph = new RandomWalkOnGraph(d);
+          rwGraph.run();
+          rwGraph.WriteToFile(); // 改行を追加
+        }
+      } else { // グラフシードと探索シードが設定されている
+        for(Integer i = 0; i < d.trial; i++){
+          RandomWalkOnGraph rwGraph = new RandomWalkOnGraph(d);
+          rwGraph.run();
+          rwGraph.WriteToFile(); // 改行を追加
+        }
+      }
     }
     System.out.println("\noutput the result to \""+ d.file.getName() +"\"");
 

@@ -1,6 +1,8 @@
 trial 1
 node 1000
 threshold 0.05
+graphSeed 1473622387912636683
+walkSeed -236423563197642130
 researchCoverRatio true
 entityClass LevyWalk
 step 1000

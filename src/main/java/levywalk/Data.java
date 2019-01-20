@@ -38,8 +38,11 @@ public class Data{
   // 許容誤差
   Double permissibleError = 20.0;
 
-  // ランダムシード
-  Long randomSeed = new Random().nextLong();
+  // グラフ用ランダムシード
+  Long graphSeed = 0L;
+
+  // 探索用ランダムシード
+  Long walkSeed = 0L;
 
   // 刻み幅
   Integer interval = 1000;

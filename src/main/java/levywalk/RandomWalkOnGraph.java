@@ -25,20 +25,22 @@ public class RandomWalkOnGraph extends RandomWalk{
   final Boolean researchCoverRatio; // カバー率を調べるかどうか
   final Double permissibleError; // 許容誤差
   final Double lambda; // パラメータ
-  final Long randomSeed; // シード
+  final Long graphSeed; // シード
+  final Long walkSeed; // シード
   final Integer interval; // カバー率を取得するステップの間隔
   final Boolean debug;
 
   /* 初期設定 */
   public RandomWalkOnGraph(Data d){
-    super(d.randomSeed);
+    super(d.walkSeed);
     this.trial = d.trial;
     this.nodeNum = d.node;
     this.threshold = d.threshold;
     this.stepNum = d.step;
     this.entityNum = d.entity;
     this.remakeNum = d.remake;
-    this.randomSeed = d.randomSeed;
+    this.graphSeed = d.graphSeed;
+    this.walkSeed = d.walkSeed;
     this.file = d.file;
     this.researchCoverRatio = d.researchCoverRatio;
     this.permissibleError = d.permissibleError;
@@ -49,10 +51,8 @@ public class RandomWalkOnGraph extends RandomWalk{
     System.out.println("");
     if(d.entityClass.equals("LevyWalk")) {
       this.entityClass = LevyWalkEntity.class.getName(); // LevyWalk
-      System.out.println("LevyWalk");
     } else if(d.entityClass.equals("RandomWalk")) {
       this.entityClass = TabuEntity.class.getName(); // RandomWalk
-      System.out.println("RandomWalk");
     } else {
       this.entityClass = null;
       System.err.println("Nothing " + d.entityClass);
@@ -64,7 +64,8 @@ public class RandomWalkOnGraph extends RandomWalk{
     } else {
       System.out.println("ReachRatio");
     }
-      System.out.println("Seed: " + this.randomSeed);
+      System.out.println("Seed for graph: " + this.graphSeed);
+      System.out.println("Seed to walk: " + this.walkSeed);
   }
 
   public void run (){
@@ -79,7 +80,6 @@ public class RandomWalkOnGraph extends RandomWalk{
     }
     /* ランダムウォークをする */
     this.randomWalk(graph);
-
     return;
   }
 
@@ -158,17 +158,20 @@ public class RandomWalkOnGraph extends RandomWalk{
   public void init(Graph graph){
     super.init(graph);
 
-      for(Entity anEntity: entities){
-        if(anEntity instanceof LevyWalkEntity){
-          LevyWalkEntity lwEntity = (LevyWalkEntity) anEntity; // ダウンキャスト
+    for(Entity anEntity: entities){
+      if(anEntity instanceof LevyWalkEntity){
+        System.out.println("LevyWalk");
+        LevyWalkEntity lwEntity = (LevyWalkEntity) anEntity; // ダウンキャスト
 
-          lwEntity.researchCoverRatio = this.researchCoverRatio;
-          lwEntity.permissibleError = this.permissibleError;
-          lwEntity.lambda = this.lambda;
-          lwEntity.debug = this.debug;
-          lwEntity.setRandomSeed(this.randomSeed); // シードの設定
-        }
+        lwEntity.researchCoverRatio = this.researchCoverRatio;
+        lwEntity.permissibleError = this.permissibleError;
+        lwEntity.lambda = this.lambda;
+        lwEntity.debug = this.debug;
+        lwEntity.setRandomSeed(this.walkSeed); // シードの設定
+      } else if(anEntity instanceof TabuEntity){
+        System.out.println("RandomWalk");
       }
+    }
 
     return;
   }
@@ -217,13 +220,14 @@ public class RandomWalkOnGraph extends RandomWalk{
     RandomEuclideanGenerator gen = new RandomEuclideanGenerator();
     Toolkit kit = new Toolkit();
 
-    gen.setRandomSeed(this.randomSeed); // ランダムシードの設定
+    gen.setRandomSeed(this.graphSeed); // ランダムシードの設定
     gen.addSink(graph);
     gen.setThreshold(threshold);
     int count = -1;
     do{
       graph.clear();
       count++;
+      System.out.printf("\rgraph reset: " + count);
 
       gen.begin();
       for(int i=1; i<nodeNum; i++){
@@ -232,13 +236,11 @@ public class RandomWalkOnGraph extends RandomWalk{
       gen.end();
 
       if(count > 1000){
-        System.out.println("Can't create the graph.");
-
-        return null;
+        System.err.println("\nCan't create the graph.");
+        System.exit(-1);
       }
     }while(!kit.isConnected(graph));
-    System.out.println("graph reset: " + count);
-    //this.WriteToFile(count);
+    System.out.println();
 
     return graph;
   }
@@ -255,7 +257,7 @@ public class RandomWalkOnGraph extends RandomWalk{
 
     return;
   }
-  public void WriteToFile(int value){
+  public void WriteToFile(Integer value){
     try{
       FileWriter fw = new FileWriter(file, true);
       fw.write(value + ",");
@@ -315,17 +317,17 @@ public class RandomWalkOnGraph extends RandomWalk{
   }
 
   // ノード、エッジのID、x座標、y座標、通過の有無を出力
-  private void printGraphInfo(Graph graph)
+  public void printGraphInfo(Graph graph)
   {
     System.out.println("");
     System.out.println("<Node>");
     for(Node aNode: graph.getEachNode())
-      System.out.println("ID: " + aNode.getId() + ",x:  " + aNode.getAttribute("x") + ", y: " + aNode.getAttribute("y"));
-
+      System.out.printf("ID: %4d, %s,  x: %f, y: %f, counter: %2.0f%n",
+                        aNode.getIndex(), aNode.getId(), aNode.getAttribute("x"), aNode.getAttribute("y"), this.getPasses(aNode));
     System.out.println("");
     System.out.println("<Edge>");
     for(Edge aEdge: graph.getEachEdge())
-      System.out.println("ID: " + aEdge.getId());
+      System.out.printf("ID: %4d, %s,passed? %2.0f%n", aEdge.getIndex(), aEdge.getId(), this.getPasses(aEdge));
 
     return;
   }

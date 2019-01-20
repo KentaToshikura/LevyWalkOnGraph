@@ -20,7 +20,8 @@ public class OptionCli{
     options.addOption("file", true, "file name");
     options.addOption("lambda", true, "value of lambda");
     options.addOption("permissibleError", true, "value of permissibleError");
-    options.addOption("randomSeed", true, "value of randomSeed");
+    options.addOption("graphSeed", true, "randomSeed to create Graph");
+    options.addOption("walkSeed", true, "randomSeed to walk");
     options.addOption("interval", true, "value of interval");
     options.addOption("debug", true, "for debug");
   }
@@ -73,8 +74,11 @@ public class OptionCli{
     if((str = cmdln.getOptionValue("permissibleError")) != null)
       d.permissibleError = Double.parseDouble(str);
 
-    if((str = cmdln.getOptionValue("randomSeed")) != null)
-      d.randomSeed = Long.parseLong(str);
+    if((str = cmdln.getOptionValue("graphSeed")) != null)
+      d.graphSeed = Long.parseLong(str);
+
+    if((str = cmdln.getOptionValue("walkSeed")) != null)
+      d.walkSeed = Long.parseLong(str);
 
     if((str = cmdln.getOptionValue("interval")) != null)
       d.interval = Integer.parseInt(str);
